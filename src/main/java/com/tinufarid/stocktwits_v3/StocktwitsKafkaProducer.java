@@ -30,30 +30,49 @@ public class StocktwitsKafkaProducer {
             String msg = null;
             JSONArray messages = StockTwistsAPIProducer.ApiProducer();
 
-
-            String messageKey = "";
-            String messageValue = "";
-            String messageCreatedAt = "";
-            String messageSentiment = "";
-
-
             for (int i = 0; i < messages.length(); i++) {
 
-                JSONObject message = messages.getJSONObject(i);
-
-                messageKey = message.getBigInteger("id").toString();
-                messageValue = message.getString("body");
-                messageCreatedAt = message.getString("created_at");
-                messageSentiment = message.getJSONObject("entities").toString();
-
-                JSONObject kafkaMessage = new JSONObject();
-                kafkaMessage.put("id", messageKey);
-                kafkaMessage.put("body", messageValue);
-                kafkaMessage.put("created_at", messageCreatedAt);
-                kafkaMessage.put("sentiment", messageSentiment);
+                try {
 
 
-                        producer.send(new ProducerRecord<>(ApplicationConfig.topic, messageKey, kafkaMessage.toString()), new Callback() {
+                    JSONObject message = messages.getJSONObject(i);
+
+                    String messageKey = message.getBigInteger("id").toString();
+                    String messageValue = message.getString("body");
+                    String messageCreatedAt = message.getString("created_at");
+                    String messageSentiment = message.getJSONObject("entities").getJSONObject("sentiment").getString("basic");
+                    String messageUserName = message.getJSONObject("user").getString("username");
+                    Integer messageUserFollowers = message.getJSONObject("user").getInt("followers");
+                    Integer messageUserFollowing = message.getJSONObject("user").getInt("following");
+                    Integer messageIdeas = message.getJSONObject("user").getInt("ideas");
+                    Integer messageLikeCount = message.getJSONObject("user").getInt("like_count");
+                    JSONArray symbols = message.getJSONArray("symbols");
+
+
+                    JSONArray messageSymbols = new JSONArray();
+
+                    for (int j = 0; j < symbols.length(); j++) {
+
+                        JSONObject symbol = symbols.getJSONObject(j);
+
+                        messageSymbols.put(symbol.getString("symbol"));
+
+                    }
+
+                    JSONObject kafkaMessage = new JSONObject();
+                    kafkaMessage.put("id", messageKey);
+                    kafkaMessage.put("body", messageValue);
+                    kafkaMessage.put("created_at", messageCreatedAt);
+                    kafkaMessage.put("username", messageUserName);
+                    kafkaMessage.put("followers", messageUserFollowers.toString());
+                    kafkaMessage.put("following", messageUserFollowing.toString());
+                    kafkaMessage.put("ideas", messageIdeas.toString());
+                    kafkaMessage.put("like_count", messageLikeCount.toString());
+                    kafkaMessage.put("symbols", messageSymbols);
+                    kafkaMessage.put("sentiment", messageSentiment);
+
+
+                    producer.send(new ProducerRecord<>(ApplicationConfig.topic, messageKey, kafkaMessage.toString()), new Callback() {
                         @Override
                         public void onCompletion(RecordMetadata recordMetadata, Exception e) {
                             if (e != null) {
@@ -61,7 +80,13 @@ public class StocktwitsKafkaProducer {
                             }
                         }
                     });
+                }
+                catch (Exception e)
+                {
 
+                    //Just pass
+
+                }
 
             }
             TimeUnit.SECONDS.sleep(60);

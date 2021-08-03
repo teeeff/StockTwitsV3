@@ -48,9 +48,9 @@ public class StockTwitsKafkaConsumer {
                         "&serverTimezone=UTC","retail_user","itversity");
 
 
-        String SQL = "INSERT INTO retail_export.test_table"
-                + "(id, body, sentiment, created_at)"
-                + "VALUES(?, ?, ?, ?)";
+        String SQL = "INSERT INTO retail_export.test_table2"
+                + "(id, created_at, body, sentiment, followers, like_count, following, ideas, symbols, username)"
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
         PreparedStatement prst = conn.prepareStatement(SQL);
@@ -68,9 +68,15 @@ public class StockTwitsKafkaConsumer {
 
 
                     prst.setString(1, jsonObject.getString("id"));
-                    prst.setString(2, jsonObject.getString("body"));
-                    prst.setString(3, jsonObject.getString("sentiment"));
-                    prst.setString(4, jsonObject.getString("created_at"));
+                    prst.setString(2, jsonObject.getString("created_at"));
+                    prst.setString(3, jsonObject.getString("body"));
+                    prst.setString(4, jsonObject.getString("sentiment"));
+                    prst.setString(5, jsonObject.getString("followers"));
+                    prst.setString(6, jsonObject.getString("like_count"));
+                    prst.setString(7, jsonObject.getString("following"));
+                    prst.setString(8, jsonObject.getString("ideas"));
+                    prst.setString(9, jsonObject.getJSONArray("symbols").toString());
+                    prst.setString(10, jsonObject.getString("username"));
                     //prst.addBatch();
 
 
