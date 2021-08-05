@@ -66,6 +66,8 @@ public class StockTwitsKafkaConsumer {
                 try {
                     JSONObject jsonObject = new JSONObject(record.value());
 
+                    System.out.println(jsonObject);
+
 
                     prst.setString(1, jsonObject.getString("id"));
                     prst.setString(2, jsonObject.getString("created_at"));

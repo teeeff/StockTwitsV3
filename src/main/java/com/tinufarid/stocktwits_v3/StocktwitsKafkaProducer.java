@@ -71,6 +71,8 @@ public class StocktwitsKafkaProducer {
                     kafkaMessage.put("symbols", messageSymbols);
                     kafkaMessage.put("sentiment", messageSentiment);
 
+                    System.out.println(kafkaMessage);
+
 
                     producer.send(new ProducerRecord<>(ApplicationConfig.topic, messageKey, kafkaMessage.toString()), new Callback() {
                         @Override
